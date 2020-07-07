@@ -7,7 +7,7 @@ IOutput::IOutput(ComPtr<IDXGIOutput>& pOutput)
 {
 }
 
-bool IOutput::QueryHardwareCompositionSupport(UINT* pFlags)
+bool IOutput::QueryHardwareCompositionSupport(UINT &pFlags)
 {
     UINT flags;
     ComPtr<IDXGIOutput6> output6;
@@ -20,7 +20,7 @@ bool IOutput::QueryHardwareCompositionSupport(UINT* pFlags)
         return false;
     }
 
-    *pFlags = flags;
+    pFlags = flags;
 
     return true;
 }
@@ -61,26 +61,4 @@ bool IAdapter::GetDesc(DXGI_ADAPTER_DESC& out)
 UINT IAdapter::GetIndex() const
 {
     return m_index;
-}
-
-IAdapters::IAdapters()
-{
-    ThrowIfFailed(CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&m_pFactory));
-}
-
-void IAdapters::Get(AdapterList& out)
-{
-    for (UINT i = 0;; ++i)
-    {
-        ComPtr<IDXGIAdapter> pAdapter;
-        HRESULT res = m_pFactory->EnumAdapters(i, &pAdapter);
-
-        if (res == DXGI_ERROR_NOT_FOUND) {
-            break;
-        }
-
-        ThrowIfFailed(res);
-
-        out.push_back(IAdapter(pAdapter, i));
-    }
 }

@@ -205,7 +205,7 @@ namespace Exceptions
         public std::exception
     {
     public:
-        hexception(HRESULT hr, int line, const char *filename) :
+        hexception(LONG hr, int line, const char *filename) :
             std::exception(),
             _hres(hr),
             _lineno(line),
@@ -214,7 +214,7 @@ namespace Exceptions
             _msg = std::system_category().message(hr);
         }
 
-        virtual HRESULT hresult() const
+        virtual LONG hresult() const
         {
             return _hres;
         }
@@ -234,7 +234,7 @@ namespace Exceptions
             return _msg.size() > 0 ? _msg.c_str() : "Unknown exception";
         }
     private:
-        HRESULT _hres;
+        LONG _hres;
         std::string _msg;
         int _lineno;
         const char* _filename;
@@ -243,3 +243,11 @@ namespace Exceptions
 
 #define ThrowIfFailed(r) if (FAILED(r)) { throw Exceptions::hexception(r, __LINE__, __FILE__); }
 #define ThrowIfFailed2(r) if (r != ERROR_SUCCESS) { throw Exceptions::hexception(r, __LINE__, __FILE__); }
+
+template<class T, class...> struct is_any_of : std::false_type {};
+template<class T, class Head, class... Tail>
+struct is_any_of<T, Head, Tail...> : std::conditional_t<
+    std::is_same<T, Head>::value,
+    std::true_type,
+    is_any_of<T, Tail...>>
+{};

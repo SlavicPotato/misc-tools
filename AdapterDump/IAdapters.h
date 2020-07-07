@@ -5,7 +5,7 @@ class IOutput
 public:
     IOutput(Microsoft::WRL::ComPtr<IDXGIOutput>& pOutput);
 
-    virtual bool QueryHardwareCompositionSupport(UINT *pFlags);
+    virtual bool QueryHardwareCompositionSupport(UINT &pFlags);
     virtual bool GetDesc(DXGI_OUTPUT_DESC& out);
 private:
     Microsoft::WRL::ComPtr<IDXGIOutput> m_pOutput;
@@ -25,16 +25,4 @@ public:
 private:
     Microsoft::WRL::ComPtr<IDXGIAdapter> m_pAdapter;
     UINT m_index;
-};
-
-class IAdapters
-{
-public:
-    typedef std::vector<IAdapter> AdapterList;
-
-    IAdapters();
-
-    virtual void Get(AdapterList& out);
-private:
-    Microsoft::WRL::ComPtr<IDXGIFactory> m_pFactory;
 };

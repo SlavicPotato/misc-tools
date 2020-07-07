@@ -5,23 +5,36 @@
 #define MessageDbg(fmt, ...) printf(__FILE__ ":" STR(__LINE__) " <" __FUNCTION__ "> " fmt "\n", __VA_ARGS__)
 #define Message(fmt, ...) printf(fmt "\n", __VA_ARGS__)
 
-#define BoolToYN(x) (x ? "yes" : "no")
+#define BoolToYN(x) ((x) ? "yes" : "no")
 
 #define NVFTS_SUBKEY	"SYSTEM\\CurrentControlSet\\Services\\nvlddmkm\\FTS"
 #define NVFTS_VAL		"EnableRID70579"
 
 typedef void(*execfunc_t)(void);
 
-static void adapterDump()
+static void dxgiDump()
 {
     using namespace StrHelpers;
 
-    Message("** Video adapter dump\n");
+    IDXGI dxgi;
 
-    IAdapters ia;
+    Message("** DXGI info\n");
 
-    IAdapters::AdapterList adList;
-    ia.Get(adList);
+    Message("\t Version: %u", Misc::Underlying(dxgi.GetVersion()));
+
+    BOOL allowTearing;
+    bool r = dxgi.CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(BOOL));
+
+    Message("\t Tearing support: %s", BoolToYN(r && allowTearing));
+    Message("\t Flip: sequential=%s discard=%s",
+        BoolToYN(dxgi.HasCapability(DXGICaps::DXGI_CAP_FLIP_SEQUENTIAL)),
+        BoolToYN(dxgi.HasCapability(DXGICaps::DXGI_CAP_FLIP_DISCARD)));
+
+    Message("\n");
+    Message("** Video adapters\n");
+
+    IDXGI::AdapterList adList;
+    dxgi.GetAdapters(adList);
 
     if (!adList.size()) {
         Message("No adapters detected");
@@ -56,7 +69,7 @@ static void adapterDump()
             bool hwcomp_f = false;
             bool hwcomp_cs = false;
 
-            bool qr = output.QueryHardwareCompositionSupport(&flags);
+            bool qr = output.QueryHardwareCompositionSupport(flags);
             if (qr) {
                 hwcomp_w = (flags & DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAG_WINDOWED) != 0;
                 hwcomp_f = (flags & DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAG_FULLSCREEN) != 0;
@@ -130,7 +143,7 @@ static void wrap_exec(execfunc_t f)
 
 static void run()
 {
-    wrap_exec(adapterDump);
+    wrap_exec(dxgiDump);
     Message("\n");
     wrap_exec(regDump);
 }

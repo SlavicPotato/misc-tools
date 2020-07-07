@@ -17,6 +17,18 @@
 
 #include "IAdapters.h"
 #include "IRegistry.h"
+#include "IDXGI.h"
 
+template <class T, class = std::enable_if_t<is_any_of<T, DXGICaps>::value>>
+inline T operator|(T lhs, T rhs)
+{
+    return static_cast<T>(Misc::Underlying(lhs) | Misc::Underlying(rhs));
+}
+
+template <class T, class = std::enable_if_t<is_any_of<T, DXGICaps>::value>>
+inline T operator&(T lhs, T rhs)
+{
+    return static_cast<T>(Misc::Underlying(lhs) & Misc::Underlying(rhs));
+}
 
 #endif //PCH_H

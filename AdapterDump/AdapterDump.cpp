@@ -7,7 +7,12 @@
 
 #define BoolToYN(x) (x ? "yes" : "no")
 
-static int run()
+#define NVFTS_SUBKEY	"SYSTEM\\CurrentControlSet\\Services\\nvlddmkm\\FTS"
+#define NVFTS_VAL		"EnableRID70579"
+
+typedef void(*execfunc_t)(void);
+
+static void adapterDump()
 {
     using namespace StrHelpers;
 
@@ -20,7 +25,7 @@ static int run()
 
     if (!adList.size()) {
         Message("No adapters detected");
-        return 0;
+        return;
     }
 
     for (auto& adapter : adList) {
@@ -84,7 +89,7 @@ static int run()
             }
 
             if (qr) {
-                Message("\t\t HW Composition: Fullscreen=%s  Windowed=%s  CursorStretched=%s",
+                Message("\t\t HW Composition: fullscreen=%s  windowed=%s  cursor stretched=%s",
                     BoolToYN(hwcomp_f), BoolToYN(hwcomp_w), BoolToYN(hwcomp_cs));
             }
             else {
@@ -99,7 +104,35 @@ static int run()
         }
     }
 
-    return 0;
+    return;
+}
+
+static void regDump()
+{
+    Message("** Registry\n");
+
+    IRegistry reg(HKEY_LOCAL_MACHINE, NVFTS_SUBKEY, KEY_READ);
+
+    DWORD v;
+    reg.GetDWORD(NVFTS_VAL, v, 0);
+    Message("\t nvlddmkm: EnableRID70579=%d", v);
+}
+
+static void wrap_exec(execfunc_t f)
+{
+    try {
+        f();
+    }
+    catch (Exceptions::hexception& e) {
+        Message("Exception occured in %s, line %d (0x%lX): %s", e.file(), e.line(), e.hresult(), e.what());
+    }
+}
+
+static void run()
+{
+    wrap_exec(adapterDump);
+    Message("\n");
+    wrap_exec(regDump);
 }
 
 static int pauseexit(int code = 0)
@@ -110,18 +143,12 @@ static int pauseexit(int code = 0)
 
 int main()
 {
-    int r;
     try {
-        r = run();
-    }
-    catch (Exceptions::hexception& e) {
-        Message("Exception occured in %s, line %d (%lX): %s", e.file(), e.line(), e.hresult(), e.what());
-        r = 1;
+        run();
     }
     catch (std::exception& e) {
         Message("Exception occured: %s", e.what());
-        r = 1;
     }
 
-    return pauseexit(r);
+    return pauseexit(0);
 }

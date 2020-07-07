@@ -242,3 +242,4 @@ namespace Exceptions
 }
 
 #define ThrowIfFailed(r) if (FAILED(r)) { throw Exceptions::hexception(r, __LINE__, __FILE__); }
+#define ThrowIfFailed2(r) if (r != ERROR_SUCCESS) { throw Exceptions::hexception(r, __LINE__, __FILE__); }

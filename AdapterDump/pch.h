@@ -16,6 +16,7 @@
 #include "helpers.h"
 
 #include "IAdapters.h"
+#include "IRegistry.h"
 
 
 #endif //PCH_H

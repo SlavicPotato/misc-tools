@@ -24,6 +24,9 @@
     <ClCompile Include="IAdapters.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="IRegistry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -33,6 +36,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IAdapters.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IRegistry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -67,26 +67,6 @@ static bool SetRegistryValDWORD(HKEY hKey, const char* name, DWORD val)
     return true;
 }
 
-static void test()
-{
-
-    HDEVINFO hdi = SetupDiCreateDeviceInfoList(NULL, NULL);
-   
-    SP_DEVINFO_DATA o;
-    o.cbSize = sizeof(SP_DEVINFO_DATA);
-
-    BOOL r = SetupDiCreateDeviceInfoA(hdi, "PCI\\VEN_10DE&DEV_1F08&SUBSYS_868C1043&REV_A1\\4&2D78AB8F", &GUID_NULL, NULL, NULL, 0, &o);
-    printf("%p %d\n", hdi, r);
-
-    if (r == FALSE)
-        return;
-
-
-    r = SetupDiRestartDevices(hdi, &o);
-
-    printf("%d\n", r);
-}
-
 static int errexit()
 {
     getchar();
@@ -95,10 +75,6 @@ static int errexit()
 
 int main()
 {
-    /*test();
-    getchar();
-    return 0;*/
-
     printf("** NVIDIA windowed hardware composition support toggler\n\n");
 
     HKEY hKey;

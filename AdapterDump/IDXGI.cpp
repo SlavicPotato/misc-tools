@@ -7,48 +7,48 @@ IDXGI::IDXGI()
     ThrowIfFailed(CreateDXGIFactory(IID_PPV_ARGS(&m_pFactory)));
 
     if (CheckFactory<IDXGIFactory7>()) {
-        m_version = DXGIVersion::DXGI_VERSION_7;
-        m_caps = DXGICaps::DXGI_CAP_FLIP_BOTH;
+        m_version = DXGIVersion::VERSION_7;
+        m_caps = DXGICaps::FLIP_BOTH;
         return;
     }
 
     if (CheckFactory<IDXGIFactory6>()) {
-        m_version = DXGIVersion::DXGI_VERSION_6;
-        m_caps = DXGICaps::DXGI_CAP_FLIP_BOTH;
+        m_version = DXGIVersion::VERSION_6;
+        m_caps = DXGICaps::FLIP_BOTH;
         return;
     }
 
     if (CheckFactory<IDXGIFactory5>()) {
-        m_version = DXGIVersion::DXGI_VERSION_5;
-        m_caps = DXGICaps::DXGI_CAP_FLIP_BOTH;
+        m_version = DXGIVersion::VERSION_5;
+        m_caps = DXGICaps::FLIP_BOTH;
         return;
     }
 
     if (CheckFactory<IDXGIFactory4>()) {
-        m_version = DXGIVersion::DXGI_VERSION_4;
-        m_caps = DXGICaps::DXGI_CAP_FLIP_BOTH;
+        m_version = DXGIVersion::VERSION_4;
+        m_caps = DXGICaps::FLIP_BOTH;
         return;
     }
 
     if (CheckFactory<IDXGIFactory3>()) {
-        m_version = DXGIVersion::DXGI_VERSION_3;
-        m_caps = DXGICaps::DXGI_CAP_FLIP_SEQUENTIAL;
+        m_version = DXGIVersion::VERSION_3;
+        m_caps = DXGICaps::FLIP_SEQUENTIAL;
         return;
     }
 
-    m_caps = DXGICaps::DXGI_CAP_NONE;
+    m_caps = DXGICaps::NONE;
 
     if (CheckFactory<IDXGIFactory2>()) {
-        m_version = DXGIVersion::DXGI_VERSION_2;
+        m_version = DXGIVersion::VERSION_2;
         return;
     }
 
     if (CheckFactory<IDXGIFactory1>()) {
-        m_version = DXGIVersion::DXGI_VERSION_1;
+        m_version = DXGIVersion::VERSION_1;
         return;
     }
 
-    m_version = DXGIVersion::DXGI_VERSION_0;
+    m_version = DXGIVersion::VERSION_0;
 }
 
 DXGIVersion IDXGI::GetVersion() const

@@ -241,8 +241,8 @@ namespace Exceptions
     };
 }
 
-#define ThrowIfFailed(r) if (FAILED(r)) { throw Exceptions::hexception(r, __LINE__, __FILE__); }
-#define ThrowIfFailed2(r) if (r != ERROR_SUCCESS) { throw Exceptions::hexception(r, __LINE__, __FILE__); }
+#define ThrowIfFailed(r) { auto hr = (r); if (FAILED(hr)) { throw Exceptions::hexception(hr, __LINE__, __FILE__); }}
+#define ThrowIfFailed2(r) { auto hr = (r); if (hr != ERROR_SUCCESS) { throw Exceptions::hexception(hr, __LINE__, __FILE__); }}
 
 template<class T, class...> struct is_any_of : std::false_type {};
 template<class T, class Head, class... Tail>

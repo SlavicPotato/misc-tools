@@ -2,22 +2,22 @@
 
 enum class DXGIVersion : uint32_t
 {
-    DXGI_VERSION_0 = 0,
-    DXGI_VERSION_1,
-    DXGI_VERSION_2,
-    DXGI_VERSION_3,
-    DXGI_VERSION_4,
-    DXGI_VERSION_5,
-    DXGI_VERSION_6,
-    DXGI_VERSION_7
+    VERSION_0,
+    VERSION_1,
+    VERSION_2,
+    VERSION_3,
+    VERSION_4,
+    VERSION_5,
+    VERSION_6,
+    VERSION_7
 };
 
 enum class DXGICaps : uint32_t
 {
-    DXGI_CAP_NONE = 0x00000000,
-    DXGI_CAP_FLIP_SEQUENTIAL = 0x00000001,
-    DXGI_CAP_FLIP_DISCARD = 0x00000002,
-    DXGI_CAP_FLIP_BOTH = 0x00000003
+    NONE = 0,
+    FLIP_SEQUENTIAL = 1 << 0,
+    FLIP_DISCARD = 1 << 1,
+    FLIP_BOTH = 3
 };
 
 class IDXGI

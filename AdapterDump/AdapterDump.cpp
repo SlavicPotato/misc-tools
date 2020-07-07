@@ -27,8 +27,8 @@ static void dxgiDump()
 
     Message("\t Tearing support: %s", BoolToYN(r && allowTearing));
     Message("\t Flip: sequential=%s discard=%s",
-        BoolToYN(dxgi.HasCapability(DXGICaps::DXGI_CAP_FLIP_SEQUENTIAL)),
-        BoolToYN(dxgi.HasCapability(DXGICaps::DXGI_CAP_FLIP_DISCARD)));
+        BoolToYN(dxgi.HasCapability(DXGICaps::FLIP_SEQUENTIAL)),
+        BoolToYN(dxgi.HasCapability(DXGICaps::FLIP_DISCARD)));
 
     Message("\n");
     Message("** Video adapters\n");

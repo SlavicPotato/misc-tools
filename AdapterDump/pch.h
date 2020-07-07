@@ -23,13 +23,13 @@
 #include "ID3D11.h"
 
 template <class T, class = std::enable_if_t<is_any_of<T, DXGICaps>::value>>
-inline T operator|(T lhs, T rhs)
+inline T operator|(T lhs, T rhs) noexcept
 {
     return static_cast<T>(Misc::Underlying(lhs) | Misc::Underlying(rhs));
 }
 
 template <class T, class = std::enable_if_t<is_any_of<T, DXGICaps>::value>>
-inline T operator&(T lhs, T rhs)
+inline T operator&(T lhs, T rhs) noexcept
 {
     return static_cast<T>(Misc::Underlying(lhs) & Misc::Underlying(rhs));
 }

@@ -1,5 +1,10 @@
 #include "pch.h"
 
+IRegistry::IRegistry()
+    : m_hKey(NULL)
+{
+}
+
 IRegistry::IRegistry(HKEY hKey, const char* subkey, REGSAM access)
 {
     ThrowIfFailed2(RegOpenKeyExA(hKey, subkey, 0, access, &m_hKey));
@@ -12,7 +17,7 @@ IRegistry::~IRegistry() noexcept
     }
 }
 
-bool IRegistry::GetDWORD(const char* name, DWORD& out, DWORD def)
+bool IRegistry::GetDWORD(const char* name, DWORD& out, DWORD def) const noexcept
 {
 
     DWORD result;

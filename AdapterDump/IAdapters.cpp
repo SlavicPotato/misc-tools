@@ -7,7 +7,7 @@ IOutput::IOutput(ComPtr<IDXGIOutput>& pOutput)
 {
 }
 
-bool IOutput::QueryHardwareCompositionSupport(UINT &pFlags)
+bool IOutput::QueryHardwareCompositionSupport(UINT& pFlags) const noexcept
 {
     UINT flags;
     ComPtr<IDXGIOutput6> output6;
@@ -25,18 +25,17 @@ bool IOutput::QueryHardwareCompositionSupport(UINT &pFlags)
     return true;
 }
 
-bool IOutput::GetDesc(DXGI_OUTPUT_DESC& out)
+bool IOutput::GetDesc(DXGI_OUTPUT_DESC& out) const noexcept
 {
     return SUCCEEDED(m_pOutput->GetDesc(&out));
 }
-
 
 IAdapter::IAdapter(ComPtr<IDXGIAdapter>& pAdapter, UINT index)
     : m_pAdapter(pAdapter), m_index(index)
 {
 }
 
-void IAdapter::GetOutputs(OutputList& out)
+void IAdapter::GetOutputs(OutputList& out) const
 {
     for (UINT i = 0;; ++i)
     {
@@ -53,12 +52,12 @@ void IAdapter::GetOutputs(OutputList& out)
     }
 }
 
-bool IAdapter::GetDesc(DXGI_ADAPTER_DESC& out)
+bool IAdapter::GetDesc(DXGI_ADAPTER_DESC& out) const noexcept
 {
     return SUCCEEDED(m_pAdapter->GetDesc(&out));
 }
 
-UINT IAdapter::GetIndex() const
+UINT IAdapter::GetIndex() const noexcept
 {
     return m_index;
 }

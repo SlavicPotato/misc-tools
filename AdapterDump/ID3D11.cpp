@@ -1,6 +1,6 @@
 #include "pch.h"
 
-static std::unordered_map<D3D_FEATURE_LEVEL, std::string> 
+static std::unordered_map<D3D_FEATURE_LEVEL, std::string>
 ftLevelToString = {
     {D3D_FEATURE_LEVEL_11_1, "11.1"},
     {D3D_FEATURE_LEVEL_11_0, "11.0"},
@@ -39,12 +39,12 @@ ID3D11::ID3D11()
     ));
 }
 
-D3D_FEATURE_LEVEL ID3D11::GetMaxFeatureLevel()
+D3D_FEATURE_LEVEL ID3D11::GetMaxFeatureLevel() const noexcept
 {
     return m_ftLevel;
 }
 
-bool ID3D11::GetMaxFeatureLevelStr(std::string &out)
+bool ID3D11::GetMaxFeatureLevelStr(std::string& out) const noexcept
 {
     auto it = ftLevelToString.find(m_ftLevel);
     if (it != ftLevelToString.end()) {

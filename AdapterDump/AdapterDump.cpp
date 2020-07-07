@@ -1,8 +1,5 @@
 #include "pch.h"
 
-#define STR_HELPER(x) #x
-#define STR(x) STR_HELPER(x)
-#define MessageDbg(fmt, ...) printf(__FILE__ ":" STR(__LINE__) " <" __FUNCTION__ "> " fmt "\n", __VA_ARGS__)
 #define Message(fmt, ...) printf(fmt "\n", __VA_ARGS__)
 
 #define BoolToYN(x) ((x) ? "yes" : "no")
@@ -16,9 +13,9 @@ static void dxgiDump()
 {
     using namespace StrHelpers;
 
-    IDXGI dxgi;
-
     Message("** DXGI info\n");
+
+    IDXGI dxgi;
 
     Message("\t Version: %u", Misc::Underlying(dxgi.GetVersion()));
 
@@ -41,7 +38,8 @@ static void dxgiDump()
         return;
     }
 
-    for (auto& adapter : adList) {
+    for (const auto& adapter : adList)
+    {
         DXGI_ADAPTER_DESC ad;
         if (!adapter.GetDesc(ad)) {
             Message("   [%u] UNKNOWN ADAPTER", adapter.GetIndex());
@@ -61,21 +59,8 @@ static void dxgiDump()
             Message("");
         }
 
-        for (auto& output : oList) {
-
-            UINT flags;
-
-            bool hwcomp_w = false;
-            bool hwcomp_f = false;
-            bool hwcomp_cs = false;
-
-            bool qr = output.QueryHardwareCompositionSupport(flags);
-            if (qr) {
-                hwcomp_w = (flags & DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAG_WINDOWED) != 0;
-                hwcomp_f = (flags & DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAG_FULLSCREEN) != 0;
-                hwcomp_cs = (flags & DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAG_CURSOR_STRETCHED) != 0;
-            }
-
+        for (const auto& output : oList)
+        {
             std::string oname;
             std::string dname;
 
@@ -95,15 +80,18 @@ static void dxgiDump()
                     oname = "UNKNOWN ID";
                 }
 
-                Message("\t %s | %s\n", dname.c_str(), oname.c_str());
+                Message("\t %s [%s]\n", dname.c_str(), oname.c_str());
             }
             else {
                 Message("\t UNKNOWN OUTPUT\n");
             }
 
-            if (qr) {
+            UINT flags;
+            if (output.QueryHardwareCompositionSupport(flags)) {
                 Message("\t\t HW Composition: fullscreen=%s  windowed=%s  cursor stretched=%s",
-                    BoolToYN(hwcomp_f), BoolToYN(hwcomp_w), BoolToYN(hwcomp_cs));
+                    BoolToYN(flags & DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAG_FULLSCREEN),
+                    BoolToYN(flags & DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAG_WINDOWED),
+                    BoolToYN(flags & DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAG_CURSOR_STRETCHED));
             }
             else {
                 Message("\t\t QueryHardwareCompositionSupport FAILED");
@@ -116,8 +104,6 @@ static void dxgiDump()
             Message("");
         }
     }
-
-    return;
 }
 
 static void d3d11Dump()
@@ -143,7 +129,7 @@ static void regDump()
 
     DWORD v;
     reg.GetDWORD(NVFTS_VAL, v, 0);
-    Message("\t nvlddmkm: EnableRID70579=%d", v);
+    Message("\t nvlddmkm: EnableRID70579=%ld", v);
 }
 
 static void wrap_exec(execfunc_t f)
@@ -152,7 +138,7 @@ static void wrap_exec(execfunc_t f)
         f();
     }
     catch (Exceptions::hexception& e) {
-        Message("Exception occured in %s, line %d (0x%lX): %s", e.file(), e.line(), e.hresult(), e.what());
+        Message("Exception occured at %s:%d (0x%lX): %s", e.file(), e.line(), e.hresult(), e.what());
     }
 }
 
@@ -180,5 +166,5 @@ int main()
         Message("Exception occured: %s", e.what());
     }
 
-    return pauseexit(0);
+    return pauseexit();
 }

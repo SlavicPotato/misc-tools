@@ -44,10 +44,10 @@ static void dxgiDump()
     for (auto& adapter : adList) {
         DXGI_ADAPTER_DESC ad;
         if (!adapter.GetDesc(ad)) {
-            Message("[%u] UNKNOWN ADAPTER", adapter.GetIndex());
+            Message("   [%u] UNKNOWN ADAPTER", adapter.GetIndex());
         }
         else {
-            Message("[%u] %s | MEM: %zu MB | SHARED: %zu MB",
+            Message("   [%u] %s | MEM: %zu MB | SHARED: %zu MB",
                 adapter.GetIndex(),
                 ToNative(ad.Description).c_str(),
                 ad.DedicatedVideoMemory / 1024 / 1024,
@@ -120,6 +120,21 @@ static void dxgiDump()
     return;
 }
 
+static void d3d11Dump()
+{
+    Message("** D3D info\n");
+
+    ID3D11 d3d11;
+
+    std::string ftLevel;
+    if (d3d11.GetMaxFeatureLevelStr(ftLevel)) {
+        Message("\t Feature level: %s", ftLevel.c_str());
+    }
+    else {
+        Message("\t Feature level: %X", d3d11.GetMaxFeatureLevel());
+    }
+}
+
 static void regDump()
 {
     Message("** Registry\n");
@@ -143,6 +158,8 @@ static void wrap_exec(execfunc_t f)
 
 static void run()
 {
+    wrap_exec(d3d11Dump);
+    Message("\n");
     wrap_exec(dxgiDump);
     Message("\n");
     wrap_exec(regDump);

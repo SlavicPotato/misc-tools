@@ -15,12 +15,16 @@
 #include <dxgi1_6.h>
 #include <d3d11_4.h>
 
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+
 #include "helpers.h"
 
 #include "IAdapters.h"
 #include "IRegistry.h"
 #include "IDXGI.h"
 #include "ID3D11.h"
+#include "IDisplayConfig.h"
 
 template <class T, class = std::enable_if_t<is_any_of<T, DXGICaps>::value>>
 inline T operator|(T lhs, T rhs) noexcept

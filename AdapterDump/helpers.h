@@ -205,11 +205,12 @@ namespace Exceptions
         public std::exception
     {
     public:
-        hexception(LONG hr, int line, const char *filename) :
+        hexception(LONG hr, int line, const char *filename, const char *expression = "") :
             std::exception(),
             _hres(hr),
             _lineno(line),
-            _filename(filename)
+            _filename(filename),
+            _expr(expression)
         {
             _msg = std::system_category().message(hr);
         }
@@ -229,6 +230,11 @@ namespace Exceptions
             return _filename;
         }
 
+        virtual const char* expression() const
+        {
+            return _expr;
+        }
+
         _NODISCARD virtual char const* what() const override
         {
             return _msg.size() > 0 ? _msg.c_str() : "Unknown exception";
@@ -238,11 +244,13 @@ namespace Exceptions
         std::string _msg;
         int _lineno;
         const char* _filename;
+        const char* _expr;
     };
 }
 
-#define ThrowIfFailed(r) { auto hr = (r); if (FAILED(hr)) { throw Exceptions::hexception(hr, __LINE__, __FILE__); }}
-#define ThrowIfFailed2(r) { auto hr = (r); if (hr != ERROR_SUCCESS) { throw Exceptions::hexception(hr, __LINE__, __FILE__); }}
+#define ThrowIfFailed(r) { auto hr = (r); if (FAILED(hr)) { throw Exceptions::hexception(hr, __LINE__, __FILE__, STR(r)); }}
+#define ThrowIfFailed2(r) { auto hr = (r); if (hr != ERROR_SUCCESS) { throw Exceptions::hexception(hr, __LINE__, __FILE__, STR(r)); }}
+#define ThrowIfFailed3(r) { if ((r) == FALSE) { throw Exceptions::hexception(GetLastError(), __LINE__, __FILE__, STR(r)); }}
 
 template<class T, class...> struct is_any_of : std::false_type {};
 template<class T, class Head, class... Tail>

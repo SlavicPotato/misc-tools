@@ -7,11 +7,37 @@
 #define NVFTS_SUBKEY	"SYSTEM\\CurrentControlSet\\Services\\nvlddmkm\\FTS"
 #define NVFTS_VAL		"EnableRID70579"
 
-typedef void(*execfunc_t)(void);
+typedef void(*execfunc_t)(void*);
 
-static void dxgiDump()
+using namespace StrHelpers;
+
+static void wrap_exec(execfunc_t f, void* a = nullptr)
 {
-    using namespace StrHelpers;
+    try {
+        f(a);
+    }
+    catch (Exceptions::hexception& e) {
+        Message("Exception occured at %s:%d (0x%lX): %s | expr: %s", 
+            e.file(), e.line(), e.hresult(), e.what(), e.expression());
+    }
+}
+
+static void monitorDump(void*a)
+{
+    auto hMonitor = static_cast<HMONITOR>(a);
+
+    IDisplayConfig dc(hMonitor);
+
+    std::wstring name;
+    DISPLAYCONFIG_VIDEO_OUTPUT_TECHNOLOGY ot;
+
+    Message("\t\t Monitor: [%s] | OutputType: %s", 
+        dc.GetMonitorName(name) ? ToNative(name).c_str() : "FAILED",
+        dc.GetOutputTech(ot) ? IDisplayConfig::GetOutputTypeName(ot) : "FAILED");
+}
+
+static void dxgiDump(void*)
+{
 
     Message("** DXGI info\n");
 
@@ -73,7 +99,7 @@ static void dxgiDump()
                 DISPLAY_DEVICEA dm;
                 dm.cb = sizeof(dm);
 
-                if (EnumDisplayDevicesA(dname.c_str(), 0, &dm, 0) == TRUE) {
+                if (EnumDisplayDevicesA(dname.c_str(), 0, &dm, 0) != FALSE) {
                     oname = dm.DeviceID;
                 }
                 else {
@@ -98,7 +124,14 @@ static void dxgiDump()
             }
 
             if (gd) {
-                Message("\t\t Attached: %s | Rotation: %d", BoolToYN(od.AttachedToDesktop), od.Rotation);
+                Message("\t\t Attached: %s | Rotation: %d | Coords: ((%ld, %ld) (%ld, %ld)) %ldx%ld",
+                    BoolToYN(od.AttachedToDesktop), od.Rotation,
+                    od.DesktopCoordinates.left, od.DesktopCoordinates.top,
+                    od.DesktopCoordinates.right, od.DesktopCoordinates.bottom,
+                    od.DesktopCoordinates.right - od.DesktopCoordinates.left,
+                    od.DesktopCoordinates.bottom - od.DesktopCoordinates.top);
+
+                wrap_exec(monitorDump, od.Monitor);
             }
 
             Message("");
@@ -106,7 +139,7 @@ static void dxgiDump()
     }
 }
 
-static void d3d11Dump()
+static void d3d11Dump(void*)
 {
     Message("** D3D info\n");
 
@@ -121,7 +154,7 @@ static void d3d11Dump()
     }
 }
 
-static void regDump()
+static void regDump(void*)
 {
     Message("** Registry\n");
 
@@ -130,16 +163,6 @@ static void regDump()
     DWORD v;
     reg.GetDWORD(NVFTS_VAL, v, 0);
     Message("\t nvlddmkm: EnableRID70579=%ld", v);
-}
-
-static void wrap_exec(execfunc_t f)
-{
-    try {
-        f();
-    }
-    catch (Exceptions::hexception& e) {
-        Message("Exception occured at %s:%d (0x%lX): %s", e.file(), e.line(), e.hresult(), e.what());
-    }
 }
 
 static void run()

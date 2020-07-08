@@ -160,6 +160,7 @@
     <ClCompile Include="AdapterDump.cpp" />
     <ClCompile Include="IAdapters.cpp" />
     <ClCompile Include="ID3D11.cpp" />
+    <ClCompile Include="IDisplayConfig.cpp" />
     <ClCompile Include="IDXGI.cpp" />
     <ClCompile Include="IRegistry.cpp" />
     <ClCompile Include="pch.cpp">
@@ -173,6 +174,7 @@
     <ClInclude Include="helpers.h" />
     <ClInclude Include="IAdapters.h" />
     <ClInclude Include="ID3D11.h" />
+    <ClInclude Include="IDisplayConfig.h" />
     <ClInclude Include="IDXGI.h" />
     <ClInclude Include="IRegistry.h" />
     <ClInclude Include="pch.h" />

@@ -1,13 +1,15 @@
 #include "pch.h"
 
-#define Message(fmt, ...) printf(fmt "\n", __VA_ARGS__)
-
 #define BoolToYN(x) ((x) ? "yes" : "no")
 
 #define NVFTS_SUBKEY	"SYSTEM\\CurrentControlSet\\Services\\nvlddmkm\\FTS"
 #define NVFTS_VAL		"EnableRID70579"
 
 typedef void(*execfunc_t)(void*);
+
+ILogger gLog(true);
+
+#define Message(fmt, ...) gLog.Message(fmt, __VA_ARGS__)
 
 using namespace StrHelpers;
 
@@ -41,16 +43,16 @@ static void monitorDump(void* a)
 
     dc.GetTargetInfo(ti);
 
-    Message("\t\t Monitor: %s\n",
+    Message("\t\tMonitor: %s\n",
         dc.GetMonitorName(name) ? ToNative(name).c_str() : "FAILED");
 
-    Message("\t\t\t Refresh rate: %u/%u (%u Hz)", 
+    Message("\t\t\tRefresh rate: %u/%u (%u Hz)", 
         ti.refreshRate.Numerator, ti.refreshRate.Denominator, getrr(ti.refreshRate));
-    Message("\t\t\t Scaling: %s", dc.GetScalingName(ti.scaling));
-    Message("\t\t\t Rotation: %s", dc.GetRotationName(ti.rotation));
-    Message("\t\t\t Scanline: %s", dc.GetScanlineOrderingName(ti.scanLineOrdering));
-    Message("\t\t\t OutputType: %s", dc.GetOutputTechName(ti.outputTechnology));
-    Message("\t\t\t Status flags: 0x%X", ti.statusFlags);
+    Message("\t\t\tScaling: %s", dc.GetScalingName(ti.scaling));
+    Message("\t\t\tRotation: %s", dc.GetRotationName(ti.rotation));
+    Message("\t\t\tScanline: %s", dc.GetScanlineOrderingName(ti.scanLineOrdering));
+    Message("\t\t\tOutputType: %s", dc.GetOutputTechName(ti.outputTechnology));
+    Message("\t\t\tStatus flags: 0x%X", ti.statusFlags);
 }
 
 static void dxgiDump(void*)
@@ -60,13 +62,13 @@ static void dxgiDump(void*)
 
     IDXGI dxgi;
 
-    Message("\t Version: %u", Misc::Underlying(dxgi.GetVersion()));
+    Message("\tVersion: %u", Misc::Underlying(dxgi.GetVersion()));
 
     BOOL allowTearing;
     bool r = dxgi.CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(BOOL));
 
-    Message("\t Tearing support: %s", BoolToYN(r && allowTearing));
-    Message("\t Flip: sequential=%s discard=%s",
+    Message("\tTearing support: %s", BoolToYN(r && allowTearing));
+    Message("\tFlip: sequential=%s discard=%s",
         BoolToYN(dxgi.HasCapability(DXGICaps::FLIP_SEQUENTIAL)),
         BoolToYN(dxgi.HasCapability(DXGICaps::FLIP_DISCARD)));
 
@@ -85,10 +87,10 @@ static void dxgiDump(void*)
     {
         DXGI_ADAPTER_DESC ad;
         if (!adapter.GetDesc(ad)) {
-            Message("   [%u] UNKNOWN ADAPTER", adapter.GetIndex());
+            Message("  [%u] UNKNOWN ADAPTER", adapter.GetIndex());
         }
         else {
-            Message("   [%u] %s | MEM: %zu MB | SHARED: %zu MB",
+            Message("  [%u] %s | MEM: %zu MB | SHARED: %zu MB",
                 adapter.GetIndex(),
                 ToNative(ad.Description).c_str(),
                 ad.DedicatedVideoMemory / 1024 / 1024,
@@ -128,25 +130,25 @@ static void dxgiDump(void*)
                     oname = "UNKNOWN ID";
                 }
 
-                Message("\t %s [%s]\n", dname.c_str(), oname.c_str());
+                Message("\t%s [%s]\n", dname.c_str(), oname.c_str());
             }
             else {
-                Message("\t UNKNOWN OUTPUT\n");
+                Message("\tUNKNOWN OUTPUT\n");
             }
 
             UINT flags;
             if (output.QueryHardwareCompositionSupport(flags)) {
-                Message("\t\t HW Composition: fullscreen=%s  windowed=%s  cursor stretched=%s",
+                Message("\t\tHW Composition: fullscreen=%s  windowed=%s  cursor stretched=%s",
                     BoolToYN(flags & DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAG_FULLSCREEN),
                     BoolToYN(flags & DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAG_WINDOWED),
                     BoolToYN(flags & DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAG_CURSOR_STRETCHED));
             }
             else {
-                Message("\t\t QueryHardwareCompositionSupport FAILED");
+                Message("\t\tQueryHardwareCompositionSupport FAILED");
             }
 
             if (gd) {
-                Message("\t\t Attached: %s | Coords: ((%ld, %ld) (%ld, %ld)) %ldx%ld",
+                Message("\t\tAttached: %s | Coords: ((%ld, %ld) (%ld, %ld)) %ldx%ld",
                     BoolToYN(od.AttachedToDesktop), 
                     od.DesktopCoordinates.left, od.DesktopCoordinates.top,
                     od.DesktopCoordinates.right, od.DesktopCoordinates.bottom,
@@ -155,7 +157,7 @@ static void dxgiDump(void*)
             }
 
             if (gd1) {
-                Message("\t\t BitsPerColor: %u | ColorSpace: %s",
+                Message("\t\tBitsPerColor: %u | ColorSpace: %s",
                     od.BitsPerColor, output.GetColorSpaceName(od.ColorSpace));
             }
 
@@ -176,10 +178,10 @@ static void d3d11Dump(void*)
 
     std::string ftLevel;
     if (d3d11.GetMaxFeatureLevelStr(ftLevel)) {
-        Message("\t Feature level: %s", ftLevel.c_str());
+        Message("\tFeature level: %s", ftLevel.c_str());
     }
     else {
-        Message("\t Feature level: %X", d3d11.GetMaxFeatureLevel());
+        Message("\tFeature level: %X", d3d11.GetMaxFeatureLevel());
     }
 }
 
@@ -191,7 +193,7 @@ static void regDump(void*)
 
     DWORD v;
     reg.GetDWORD(NVFTS_VAL, v, 0);
-    Message("\t nvlddmkm: EnableRID70579=%ld", v);
+    Message("\tnvlddmkm: EnableRID70579=%ld", v);
 }
 
 static void run()
@@ -211,12 +213,31 @@ static int pauseexit(int code = 0)
 
 int main()
 {
+    TCHAR exePath[MAX_PATH];
+    GetModuleFileName(NULL, exePath, MAX_PATH);
+
+    TCHAR exeFolder[MAX_PATH];
+    _tcscpy_s(exeFolder, exePath);
+    PathRemoveFileSpec(exeFolder);
+
+    _snprintf_s(exePath, _TRUNCATE, "%s\\%s", exeFolder, "AdapterDump.log");
+
+    if (!gLog.Open(exePath)) {
+        
+        auto errcode = GetLastError();
+        Message("Couldn't create log file: (%ld) %s",
+            errcode,
+            std::system_category().message(errcode).c_str());
+    }
+
     try {
         run();
     }
     catch (std::exception& e) {
         Message("Exception occured: %s", e.what());
     }
+
+    gLog.Close();
 
     return pauseexit();
 }

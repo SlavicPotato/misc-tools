@@ -40,7 +40,7 @@ bool IOutput::GetDesc1(DXGI_OUTPUT_DESC1& out) const noexcept
     return SUCCEEDED(output6->GetDesc1(&out));
 }
 
-const char* IOutput::GetColorSpaceName(DXGI_COLOR_SPACE_TYPE colorspace)
+const char* IOutput::GetColorSpaceName(DXGI_COLOR_SPACE_TYPE colorspace) noexcept
 {
     switch (colorspace) {
     case DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709:

@@ -31,12 +31,12 @@ IDisplayConfig::IDisplayConfig(HMONITOR hMonitor)
     throw Exceptions::hexception(ERROR_FILE_NOT_FOUND, __LINE__, __FILE__);
 }
 
-void IDisplayConfig::GetTargetInfo(DISPLAYCONFIG_PATH_TARGET_INFO& out)
+void IDisplayConfig::GetTargetInfo(DISPLAYCONFIG_PATH_TARGET_INFO& out) const noexcept
 {
     out = m_targetInfo;
 }
 
-bool IDisplayConfig::GetMonitorName(std::wstring& out)
+bool IDisplayConfig::GetMonitorName(std::wstring& out) const noexcept
 {
     DISPLAYCONFIG_TARGET_DEVICE_NAME name;
     name.header.type = DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME;
@@ -53,7 +53,7 @@ bool IDisplayConfig::GetMonitorName(std::wstring& out)
 
 }
 
-const char* IDisplayConfig::GetOutputTechName(DISPLAYCONFIG_VIDEO_OUTPUT_TECHNOLOGY vo)
+const char* IDisplayConfig::GetOutputTechName(DISPLAYCONFIG_VIDEO_OUTPUT_TECHNOLOGY vo) noexcept
 {
     switch (vo)
     {
@@ -100,7 +100,7 @@ const char* IDisplayConfig::GetOutputTechName(DISPLAYCONFIG_VIDEO_OUTPUT_TECHNOL
     return "Unknown";
 }
 
-const char* IDisplayConfig::GetScalingName(DISPLAYCONFIG_SCALING s)
+const char* IDisplayConfig::GetScalingName(DISPLAYCONFIG_SCALING s) noexcept
 {
     switch (s) {
     case DISPLAYCONFIG_SCALING_IDENTITY:
@@ -120,7 +120,7 @@ const char* IDisplayConfig::GetScalingName(DISPLAYCONFIG_SCALING s)
     return "UNKNOWN";
 }
 
-const char* IDisplayConfig::GetScanlineOrderingName(DISPLAYCONFIG_SCANLINE_ORDERING so)
+const char* IDisplayConfig::GetScanlineOrderingName(DISPLAYCONFIG_SCANLINE_ORDERING so) noexcept
 {
     switch (so) {
     case DISPLAYCONFIG_SCANLINE_ORDERING_UNSPECIFIED:
@@ -136,7 +136,7 @@ const char* IDisplayConfig::GetScanlineOrderingName(DISPLAYCONFIG_SCANLINE_ORDER
     return "UNKNOWN";
 }
 
-const char* IDisplayConfig::GetRotationName(DISPLAYCONFIG_ROTATION r)
+const char* IDisplayConfig::GetRotationName(DISPLAYCONFIG_ROTATION r) noexcept
 {
     switch (r) {
     case DISPLAYCONFIG_ROTATION_IDENTITY:

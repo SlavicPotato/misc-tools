@@ -5,6 +5,8 @@
 
 #include <windows.h>
 #include <stdio.h>
+#include <shlwapi.h>
+#include <tchar.h>
 
 #include <vector>
 #include <string>
@@ -25,6 +27,7 @@
 #include "IDXGI.h"
 #include "ID3D11.h"
 #include "IDisplayConfig.h"
+#include "ILogger.h"
 
 template <class T, class = std::enable_if_t<is_any_of<T, DXGICaps>::value>>
 inline T operator|(T lhs, T rhs) noexcept

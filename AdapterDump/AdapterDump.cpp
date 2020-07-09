@@ -17,23 +17,40 @@ static void wrap_exec(execfunc_t f, void* a = nullptr)
         f(a);
     }
     catch (Exceptions::hexception& e) {
-        Message("Exception occured at %s:%d (0x%lX): %s | expr: %s", 
+        Message("Exception occured at %s:%d (0x%lX): %s | expr: %s",
             e.file(), e.line(), e.hresult(), e.what(), e.expression());
     }
 }
 
-static void monitorDump(void*a)
+inline static UINT getrr(DISPLAYCONFIG_RATIONAL &r)
+{
+    if (!r.Denominator) {
+        return 0;
+    }
+    return r.Numerator / r.Denominator;
+}
+
+static void monitorDump(void* a)
 {
     auto hMonitor = static_cast<HMONITOR>(a);
 
     IDisplayConfig dc(hMonitor);
 
+    DISPLAYCONFIG_PATH_TARGET_INFO ti;
     std::wstring name;
-    DISPLAYCONFIG_VIDEO_OUTPUT_TECHNOLOGY ot;
 
-    Message("\t\t Monitor: [%s] | OutputType: %s", 
-        dc.GetMonitorName(name) ? ToNative(name).c_str() : "FAILED",
-        dc.GetOutputTech(ot) ? IDisplayConfig::GetOutputTypeName(ot) : "FAILED");
+    dc.GetTargetInfo(ti);
+
+    Message("\t\t Monitor: %s\n",
+        dc.GetMonitorName(name) ? ToNative(name).c_str() : "FAILED");
+
+    Message("\t\t\t Refresh rate: %u/%u (%u Hz)", 
+        ti.refreshRate.Numerator, ti.refreshRate.Denominator, getrr(ti.refreshRate));
+    Message("\t\t\t Scaling: %s", dc.GetScalingName(ti.scaling));
+    Message("\t\t\t Rotation: %s", dc.GetRotationName(ti.rotation));
+    Message("\t\t\t Scanline: %s", dc.GetScanlineOrderingName(ti.scanLineOrdering));
+    Message("\t\t\t OutputType: %s", dc.GetOutputTechName(ti.outputTechnology));
+    Message("\t\t\t Status flags: 0x%X", ti.statusFlags);
 }
 
 static void dxgiDump(void*)
@@ -90,8 +107,13 @@ static void dxgiDump(void*)
             std::string oname;
             std::string dname;
 
-            DXGI_OUTPUT_DESC od;
-            bool gd = output.GetDesc(od);
+            bool gd1, gd;
+
+            DXGI_OUTPUT_DESC1 od;
+            gd1 = gd = output.GetDesc1(od);
+            if (!gd) {
+                gd = output.GetDesc(reinterpret_cast<DXGI_OUTPUT_DESC&>(od));
+            }
 
             if (gd) {
                 dname = ToNative(od.DeviceName);
@@ -124,13 +146,20 @@ static void dxgiDump(void*)
             }
 
             if (gd) {
-                Message("\t\t Attached: %s | Rotation: %d | Coords: ((%ld, %ld) (%ld, %ld)) %ldx%ld",
-                    BoolToYN(od.AttachedToDesktop), od.Rotation,
+                Message("\t\t Attached: %s | Coords: ((%ld, %ld) (%ld, %ld)) %ldx%ld",
+                    BoolToYN(od.AttachedToDesktop), 
                     od.DesktopCoordinates.left, od.DesktopCoordinates.top,
                     od.DesktopCoordinates.right, od.DesktopCoordinates.bottom,
                     od.DesktopCoordinates.right - od.DesktopCoordinates.left,
                     od.DesktopCoordinates.bottom - od.DesktopCoordinates.top);
+            }
 
+            if (gd1) {
+                Message("\t\t BitsPerColor: %u | ColorSpace: %s",
+                    od.BitsPerColor, output.GetColorSpaceName(od.ColorSpace));
+            }
+
+            if (gd) {
                 wrap_exec(monitorDump, od.Monitor);
             }
 

@@ -22,15 +22,18 @@ IDisplayConfig::IDisplayConfig(HMONITOR hMonitor)
         sourceName.header.id = p.sourceInfo.id;
         ThrowIfFailed2(DisplayConfigGetDeviceInfo(&sourceName.header));
 
-        if (wcscmp(info.szDevice, sourceName.viewGdiDeviceName) == 0) {
-            m_adapterID = p.sourceInfo.adapterId;
-            m_targetID = p.targetInfo.id;
-
+        if (wcscmp(info.szDevice, sourceName.viewGdiDeviceName) == 0) {            
+            m_targetInfo = p.targetInfo;
             return;
         }
     }
 
-    throw Exceptions::hexception(2, __LINE__, __FILE__);
+    throw Exceptions::hexception(ERROR_FILE_NOT_FOUND, __LINE__, __FILE__);
+}
+
+void IDisplayConfig::GetTargetInfo(DISPLAYCONFIG_PATH_TARGET_INFO& out)
+{
+    out = m_targetInfo;
 }
 
 bool IDisplayConfig::GetMonitorName(std::wstring& out)
@@ -38,8 +41,8 @@ bool IDisplayConfig::GetMonitorName(std::wstring& out)
     DISPLAYCONFIG_TARGET_DEVICE_NAME name;
     name.header.type = DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_NAME;
     name.header.size = sizeof(name);
-    name.header.adapterId = m_adapterID;
-    name.header.id = m_targetID;
+    name.header.adapterId = m_targetInfo.adapterId;
+    name.header.id = m_targetInfo.id;
 
     if (DisplayConfigGetDeviceInfo(&name.header) != ERROR_SUCCESS) {
         return false;
@@ -50,23 +53,7 @@ bool IDisplayConfig::GetMonitorName(std::wstring& out)
 
 }
 
-bool IDisplayConfig::GetOutputTech(DISPLAYCONFIG_VIDEO_OUTPUT_TECHNOLOGY& out)
-{
-    DISPLAYCONFIG_TARGET_BASE_TYPE bt;
-    bt.header.type = DISPLAYCONFIG_DEVICE_INFO_GET_TARGET_BASE_TYPE;
-    bt.header.size = sizeof(bt);
-    bt.header.adapterId = m_adapterID;
-    bt.header.id = m_targetID;
-
-    if (DisplayConfigGetDeviceInfo(&bt.header) != ERROR_SUCCESS) {
-        return false;
-    }
-
-    out = bt.baseOutputTechnology;
-    return true;
-}
-
-const char* IDisplayConfig::GetOutputTypeName(DISPLAYCONFIG_VIDEO_OUTPUT_TECHNOLOGY vo)
+const char* IDisplayConfig::GetOutputTechName(DISPLAYCONFIG_VIDEO_OUTPUT_TECHNOLOGY vo)
 {
     switch (vo)
     {
@@ -111,4 +98,56 @@ const char* IDisplayConfig::GetOutputTypeName(DISPLAYCONFIG_VIDEO_OUTPUT_TECHNOL
     }
 
     return "Unknown";
+}
+
+const char* IDisplayConfig::GetScalingName(DISPLAYCONFIG_SCALING s)
+{
+    switch (s) {
+    case DISPLAYCONFIG_SCALING_IDENTITY:
+        return STR(DISPLAYCONFIG_SCALING_IDENTITY);
+    case DISPLAYCONFIG_SCALING_CENTERED:
+        return STR(DISPLAYCONFIG_SCALING_CENTERED);
+    case DISPLAYCONFIG_SCALING_STRETCHED:
+        return STR(DISPLAYCONFIG_SCALING_STRETCHED);
+    case DISPLAYCONFIG_SCALING_ASPECTRATIOCENTEREDMAX:
+        return STR(DISPLAYCONFIG_SCALING_ASPECTRATIOCENTEREDMAX);
+    case DISPLAYCONFIG_SCALING_CUSTOM:
+        return STR(DISPLAYCONFIG_SCALING_CUSTOM);
+    case DISPLAYCONFIG_SCALING_PREFERRED:
+        return STR(DISPLAYCONFIG_SCALING_PREFERRED);
+    }
+
+    return "UNKNOWN";
+}
+
+const char* IDisplayConfig::GetScanlineOrderingName(DISPLAYCONFIG_SCANLINE_ORDERING so)
+{
+    switch (so) {
+    case DISPLAYCONFIG_SCANLINE_ORDERING_UNSPECIFIED:
+        return STR(DISPLAYCONFIG_SCANLINE_ORDERING_UNSPECIFIED);
+    case DISPLAYCONFIG_SCANLINE_ORDERING_PROGRESSIVE:
+        return STR(DISPLAYCONFIG_SCANLINE_ORDERING_PROGRESSIVE);
+    case DISPLAYCONFIG_SCANLINE_ORDERING_INTERLACED:
+        return STR(DISPLAYCONFIG_SCANLINE_ORDERING_INTERLACED);
+    case DISPLAYCONFIG_SCANLINE_ORDERING_INTERLACED_LOWERFIELDFIRST:
+        return STR(DISPLAYCONFIG_SCANLINE_ORDERING_INTERLACED_LOWERFIELDFIRST);
+    }
+
+    return "UNKNOWN";
+}
+
+const char* IDisplayConfig::GetRotationName(DISPLAYCONFIG_ROTATION r)
+{
+    switch (r) {
+    case DISPLAYCONFIG_ROTATION_IDENTITY:
+        return STR(DISPLAYCONFIG_ROTATION_IDENTITY);
+    case DISPLAYCONFIG_ROTATION_ROTATE90:
+        return STR(DISPLAYCONFIG_ROTATION_ROTATE90);
+    case DISPLAYCONFIG_ROTATION_ROTATE180:
+        return STR(DISPLAYCONFIG_ROTATION_ROTATE180);
+    case DISPLAYCONFIG_ROTATION_ROTATE270:
+        return STR(DISPLAYCONFIG_ROTATION_ROTATE270);
+    }
+
+    return "UNKNOWN";
 }

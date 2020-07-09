@@ -5,13 +5,15 @@ class IDisplayConfig
 public:
     IDisplayConfig(HMONITOR hMonitor);
 
+    virtual void GetTargetInfo(DISPLAYCONFIG_PATH_TARGET_INFO& out);
     virtual bool GetMonitorName(std::wstring &out);
-    virtual bool GetOutputTech(DISPLAYCONFIG_VIDEO_OUTPUT_TECHNOLOGY &out);
 
-    static const char* GetOutputTypeName(DISPLAYCONFIG_VIDEO_OUTPUT_TECHNOLOGY vo);
+    static const char* GetOutputTechName(DISPLAYCONFIG_VIDEO_OUTPUT_TECHNOLOGY vo);
+    static const char* GetScalingName(DISPLAYCONFIG_SCALING s);
+    static const char* GetScanlineOrderingName(DISPLAYCONFIG_SCANLINE_ORDERING so);
+    static const char* GetRotationName(DISPLAYCONFIG_ROTATION so);
 private:
     HMONITOR m_hMonitor;
 
-    LUID m_adapterID;
-    UINT32 m_targetID;
+    DISPLAYCONFIG_PATH_TARGET_INFO m_targetInfo;
 }; 

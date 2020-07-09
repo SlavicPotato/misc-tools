@@ -7,6 +7,9 @@ public:
 
     virtual bool QueryHardwareCompositionSupport(UINT& pFlags) const noexcept;
     virtual bool GetDesc(DXGI_OUTPUT_DESC& out) const noexcept;
+    virtual bool GetDesc1(DXGI_OUTPUT_DESC1& out) const noexcept;
+
+    static const char* GetColorSpaceName(DXGI_COLOR_SPACE_TYPE colorspace);
 private:
     Microsoft::WRL::ComPtr<IDXGIOutput> m_pOutput;
 };

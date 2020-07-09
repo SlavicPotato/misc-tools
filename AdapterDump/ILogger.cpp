@@ -18,7 +18,9 @@ bool ILogger::Open(const char* path)
 
 void ILogger::Close()
 {
-    ofs.close();
+    if (ofs.is_open()) {
+        ofs.close();
+    }
 }
 
 void ILogger::Message(const char* fmt, ...)

@@ -51,7 +51,7 @@ IDXGI::IDXGI()
     m_version = DXGIVersion::V_0;
 }
 
-DXGIVersion IDXGI::GetVersion() const
+DXGIVersion IDXGI::GetVersion() const noexcept
 {
     return m_version;
 }

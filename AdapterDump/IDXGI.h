@@ -27,7 +27,7 @@ public:
 
     IDXGI();
 
-    virtual DXGIVersion GetVersion() const;
+    virtual DXGIVersion GetVersion() const noexcept;
     virtual void GetAdapters(AdapterList& out) const;
     virtual bool CheckFeatureSupport(DXGI_FEATURE Feature, void* pFeatureSupportData, UINT FeatureSupportDataSize) const noexcept;
     virtual bool HasCapability(DXGICaps cap) const noexcept;

@@ -52,7 +52,7 @@ static void monitorDump(void* a)
     Message("\t\t\tRotation: %s", dc.GetRotationName(ti.rotation));
     Message("\t\t\tScanline: %s", dc.GetScanlineOrderingName(ti.scanLineOrdering));
     Message("\t\t\tOutputType: %s", dc.GetOutputTechName(ti.outputTechnology));
-    Message("\t\t\tStatus flags: 0x%X", ti.statusFlags);
+    Message("\t\t\tStatus flags: 0x%.8X", ti.statusFlags);
 }
 
 static void dxgiDump(void*)
@@ -138,7 +138,7 @@ static void dxgiDump(void*)
 
             UINT flags;
             if (output.QueryHardwareCompositionSupport(flags)) {
-                Message("\t\tHW Composition: fullscreen=%s  windowed=%s  cursor stretched=%s",
+                Message("\t\tHW Composition: fullscreen=%s  windowed=%s  cursorStretched=%s",
                     BoolToYN(flags & DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAG_FULLSCREEN),
                     BoolToYN(flags & DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAG_WINDOWED),
                     BoolToYN(flags & DXGI_HARDWARE_COMPOSITION_SUPPORT_FLAG_CURSOR_STRETCHED));
@@ -211,24 +211,28 @@ static int pauseexit(int code = 0)
     return code;
 }
 
-int main()
+static void OpenLog()
 {
-    TCHAR exePath[MAX_PATH];
-    GetModuleFileName(NULL, exePath, MAX_PATH);
+    TCHAR b1[MAX_PATH];
+    GetModuleFileName(NULL, b1, MAX_PATH);
 
-    TCHAR exeFolder[MAX_PATH];
-    _tcscpy_s(exeFolder, exePath);
-    PathRemoveFileSpec(exeFolder);
+    TCHAR b2[MAX_PATH];
+    _tcscpy_s(b2, b1);
+    PathRemoveFileSpec(b2);
 
-    _snprintf_s(exePath, _TRUNCATE, "%s\\%s", exeFolder, "AdapterDump.log");
+    _snprintf_s(b1, _TRUNCATE, "%s\\%s", b2, "AdapterDump.log");
 
-    if (!gLog.Open(exePath)) {
-        
+    if (!gLog.Open(b1)) {
         auto errcode = GetLastError();
         Message("Couldn't create log file: (%ld) %s",
             errcode,
             std::system_category().message(errcode).c_str());
     }
+}
+
+int main()
+{
+    OpenLog();
 
     try {
         run();
